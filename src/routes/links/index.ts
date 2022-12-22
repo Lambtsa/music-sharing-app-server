@@ -3,7 +3,6 @@ import { z } from "zod";
 
 import {
   BadRequestError,
-  CustomBaseError,
   MethodNotAllowedError,
   UnsupportedUrlError,
 } from "core/errors";
@@ -107,11 +106,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     });
   } catch (err) {
     console.log({ err });
-    if (err instanceof CustomBaseError) {
-      res.status(err.statusCode).send(err);
-    } else {
-      res.status(500).send(err as any);
-    }
+    next(err);
   }
 });
 

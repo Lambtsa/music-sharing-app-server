@@ -5,9 +5,9 @@ import { z } from "zod";
  * Small helper function to remove whitespace and trim
  * @example sanitiseData("LaSt    Train    ") // "last train"
  */
-export const sanitiseData = <T extends string>(input: T): T => {
+export const sanitiseData = (input: string): string => {
   const rmWhitespaceRegex = /\s\s+/g;
-  return input.trim().replace(rmWhitespaceRegex, " ") as T;
+  return input.trim().replace(rmWhitespaceRegex, " ");
 };
 
 /**

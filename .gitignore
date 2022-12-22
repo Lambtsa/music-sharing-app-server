@@ -1,0 +1,8 @@
+# Envs
+.env.local
+
+# Node modules
+/node_modules
+
+# Deployment
+/deploy

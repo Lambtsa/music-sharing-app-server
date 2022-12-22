@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import { z } from "zod";
+import { v4 as uuid } from "uuid";
 
 import {
   BadRequestError,
@@ -8,7 +9,9 @@ import {
 } from "core/errors";
 import { isValidData } from "@helpers/sanitise";
 import { determineUrlType, getTrackId } from "@helpers/url";
-import { GetMusicLinksInput, LinksResponseData } from "@types";
+import { GetMusicLinksInput, LinksResponseData, UserDataInput } from "@types";
+import { Search } from "db/tables.types";
+import { Knex } from "knex";
 
 const router = express.Router();
 
@@ -23,7 +26,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     /* DATA */
     /* ######################################## */
     const {
-      body: { url },
+      body: { url, user },
     } = req;
     if (!url) {
       return next(new BadRequestError());
@@ -46,7 +49,10 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       return next(new BadRequestError());
     }
 
-    const { spotify, deezer, youtube } = req.context.external;
+    const {
+      db,
+      external: { spotify, deezer, youtube },
+    } = req.context;
 
     let details: GetMusicLinksInput;
 
@@ -63,6 +69,29 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       case "youtube": {
         throw new UnsupportedUrlError();
       }
+    }
+
+    /* ######################################## */
+    /* Save Data to DB */
+    /* ######################################## */
+    if (!!user.ip && !!user.geolocation) {
+      /* TODO: Add transaction */
+      const { ip, geolocation } = user as UserDataInput;
+      await db.transaction(async (trx: Knex.Transaction) => {
+        await db<Search>("searches")
+          .transacting(trx)
+          .insert({
+            id: uuid(),
+            ip: ip,
+            city: geolocation?.city || null,
+            country: geolocation?.country || null,
+            coordinates: geolocation?.coordinates || null,
+            timezone: geolocation?.timezone || null,
+            search: url,
+            search_type: "url",
+            url_type: urlType,
+          });
+      });
     }
 
     /* ######################################## */

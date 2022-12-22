@@ -1,6 +1,11 @@
+import express, { NextFunction, Request, Response } from "express";
+import { Knex } from "knex";
+import { v4 as uuid } from "uuid";
+
 import { BadRequestError, MethodNotAllowedError } from "@core/errors";
 import { sanitiseData } from "@helpers/sanitise";
-import express, { NextFunction, Request, Response } from "express";
+import { UserDataInput } from "@types";
+import { Search } from "db/tables.types";
 
 const router = express.Router();
 
@@ -10,7 +15,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     /* DATA */
     /* ######################################## */
     const {
-      body: { artist: rawArtist, track: rawTrack },
+      body: { artist: rawArtist, track: rawTrack, user },
     } = req;
     if (!rawArtist && !rawTrack) {
       next(new BadRequestError());
@@ -20,7 +25,10 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     const artist = sanitiseData(rawArtist || "");
     const track = sanitiseData(rawTrack || "");
 
-    const { spotify } = req.context.external;
+    const {
+      db,
+      external: { spotify },
+    } = req.context;
 
     if (artist) {
       const response = await spotify.getListOfAlbumsByArtist(
@@ -30,23 +38,25 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       /* ######################################## */
       /* Save Data to DB */
       /* ######################################## */
-      // if (!!user.ip && !!user.geolocation) {
-      //   /* TODO: Add transaction */
-      //   const { ip, geolocation } = user as UseUserDataReturnType;
-      //   await knex.transaction(async (trx) => {
-      //     await knex<Search>("searches").transacting(trx).insert({
-      //       id: uuid(),
-      //       ip: ip,
-      //       city: geolocation?.city || null,
-      //       country: geolocation?.country || null,
-      //       coordinates: geolocation?.coordinates || null,
-      //       timezone: geolocation?.timezone || null,
-      //       search: artist,
-      //       search_type: "artist",
-      //       url_type: null,
-      //     });
-      //   });
-      // }
+      if (!!user.ip && !!user.geolocation) {
+        /* TODO: Add transaction */
+        const { ip, geolocation } = user as UserDataInput;
+        await db.transaction(async (trx: Knex.Transaction) => {
+          await db<Search>("searches")
+            .transacting(trx)
+            .insert({
+              id: uuid(),
+              ip: ip,
+              city: geolocation?.city || null,
+              country: geolocation?.country || null,
+              coordinates: geolocation?.coordinates || null,
+              timezone: geolocation?.timezone || null,
+              search: artist,
+              search_type: "artist",
+              url_type: null,
+            });
+        });
+      }
       return res.status(200).json(response);
     }
 
@@ -58,23 +68,25 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       /* ######################################## */
       /* Save Data to DB */
       /* ######################################## */
-      // if (!!user.ip && !!user.geolocation) {
-      //   /* TODO: Add transaction */
-      //   const { ip, geolocation } = user as UseUserDataReturnType;
-      //   await knex.transaction(async (trx) => {
-      //     await knex<Search>("searches").transacting(trx).insert({
-      //       id: uuid(),
-      //       ip: ip,
-      //       city: geolocation?.city || null,
-      //       country: geolocation?.country || null,
-      //       coordinates: geolocation?.coordinates || null,
-      //       timezone: geolocation?.timezone || null,
-      //       search: track,
-      //       search_type: "track",
-      //       url_type: null,
-      //     });
-      //   });
-      // }
+      if (!!user.ip && !!user.geolocation) {
+        /* TODO: Add transaction */
+        const { ip, geolocation } = user as UserDataInput;
+        await db.transaction(async (trx: Knex.Transaction) => {
+          await db<Search>("searches")
+            .transacting(trx)
+            .insert({
+              id: uuid(),
+              ip: ip,
+              city: geolocation?.city || null,
+              country: geolocation?.country || null,
+              coordinates: geolocation?.coordinates || null,
+              timezone: geolocation?.timezone || null,
+              search: track,
+              search_type: "track",
+              url_type: null,
+            });
+        });
+      }
       return res.status(200).json(response);
     }
   } catch (err) {

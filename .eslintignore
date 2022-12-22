@@ -9,3 +9,7 @@ jest.config.js
 
 # Build folder
 dist
+
+# Database
+/db/**
+knexfile.js

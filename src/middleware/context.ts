@@ -1,10 +1,12 @@
+import { createConnection } from "db/knex";
 import { NextFunction, Request, Response } from "express";
 import { DeezerApi, SpotifyApi, YoutubeApi } from "modules";
 
 export const AddContext =
-  () => (req: Request, _res: Response, next: NextFunction) => {
+  () => async (req: Request, _res: Response, next: NextFunction) => {
+    const db = await createConnection();
     const context: Express.RequestContext = {
-      db: "test",
+      db,
       external: {
         spotify: new SpotifyApi(),
         deezer: new DeezerApi(),

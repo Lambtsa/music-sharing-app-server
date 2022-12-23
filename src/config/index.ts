@@ -33,7 +33,7 @@ export const config: Config = {
     },
     rateLimiter: {
       interval: 1 * 60 * 1000,
-      max: 5,
+      max: 100,
     },
   },
 };

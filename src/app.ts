@@ -50,15 +50,15 @@ app.use(AddContext());
 /* ######################################## */
 /* Router */
 /* ######################################## */
-app.use("/api", api);
-api.get("/ping", (_req: Request, res: Response, _next: NextFunction) => {
-  res.status(200).send({
-    message: "Pinged",
+app.get("/ping", (_req: Request, res: Response, _next: NextFunction) => {
+  return res.status(200).json({
+    message: "pong",
   });
 });
+app.use("/api", api);
 
 /* ######################################## */
-/* Error Handling */
+/* Error Handling - DO NOT place any other endpoint or middleware after these two. */
 /* ######################################## */
 app.use((_req: Request, _res: Response, next: NextFunction) => {
   return next(new NotFoundError());

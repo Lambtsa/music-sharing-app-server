@@ -13,8 +13,8 @@ import {
 import {
   ExternalApiError,
   BadGatewayError,
-  NotFoundError,
   BadRequestError,
+  TrackNotFoundError,
 } from "@core/errors";
 import fetch from "node-fetch";
 
@@ -142,7 +142,7 @@ export class SpotifyApi {
       const data = (await response.json()) as TrackItem;
 
       if (!data.artists[0]) {
-        throw new NotFoundError();
+        throw new TrackNotFoundError();
       }
 
       return {
@@ -175,7 +175,7 @@ export class SpotifyApi {
       );
 
       if (!track || !track.artists[0]) {
-        throw new NotFoundError();
+        throw new TrackNotFoundError();
       }
 
       return {
@@ -212,7 +212,7 @@ export class SpotifyApi {
           throw new BadRequestError();
         }
         case 404: {
-          throw new NotFoundError();
+          throw new TrackNotFoundError();
         }
       }
     }
@@ -249,7 +249,7 @@ export class SpotifyApi {
     const data = (await response.json()) as TrackResponse;
 
     if (!data.tracks.items.length) {
-      throw new NotFoundError();
+      throw new TrackNotFoundError();
     }
 
     return {
@@ -290,7 +290,7 @@ export class SpotifyApi {
     const { albums: albumData } = (await response.json()) as AlbumResponse;
 
     if (!albumData.items.length) {
-      throw new NotFoundError();
+      throw new TrackNotFoundError();
     }
 
     const albums = await Promise.all(

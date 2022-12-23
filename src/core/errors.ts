@@ -3,6 +3,7 @@ export enum CustomApiErrorMessages {
   IncorrectInput = "Input data is incorrect or incomplete",
   ExternalApiIssue = "Issue with the Spotify API",
   NoTrack = "No track available",
+  NotFound = "Endpoint doesn't exist",
   IncorrectMethod = "Only POST method is available",
   UnsupportedUrl = "Unfortunately Youtube is unsupported currently",
   TooManyRequests = "You sent too many requests. Please wait a while then try again",
@@ -67,9 +68,20 @@ export class ExternalApiError extends CustomBaseError {
   }
 }
 
-export class NotFoundError extends CustomBaseError {
+export class TrackNotFoundError extends CustomBaseError {
   statusCode = 404;
   message = CustomApiErrorMessages.NoTrack;
+
+  constructor(message?: string) {
+    super(message);
+
+    // 👇️ because we are extending a built-in class
+    Object.setPrototypeOf(this, TrackNotFoundError.prototype);
+  }
+}
+export class NotFoundError extends CustomBaseError {
+  statusCode = 404;
+  message = CustomApiErrorMessages.NotFound;
 
   constructor(message?: string) {
     super(message);

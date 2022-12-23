@@ -51,6 +51,11 @@ app.use(AddContext());
 /* Router */
 /* ######################################## */
 app.use("/api", api);
+api.use("/ping", (_req: Request, res: Response, _next: NextFunction) => {
+  res.status(200).send({
+    message: "Pinged",
+  });
+});
 
 /* ######################################## */
 /* Error Handling */
@@ -61,6 +66,7 @@ app.use((_req: Request, _res: Response, next: NextFunction) => {
 
 app.use(
   (err: CustomBaseError, _: Request, res: Response, _next: NextFunction) => {
+    console.log({ err });
     const statusCode = err.statusCode || 500;
     res.status(statusCode).send();
   },

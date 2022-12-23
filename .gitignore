@@ -6,3 +6,6 @@
 
 # Deployment
 /deploy
+
+# Build
+/dist

@@ -17,7 +17,7 @@
     "remote:restart": "bash ./deploy/restart.sh",
     "remote:destroy": "bash ./deploy/delete.sh",
     "remote:start": "bash ./deploy/start.sh",
-    "remote:deploy": "bash ./deploy/pull.sh && bash ./deploy/deploy.sh"
+    "remote:deploy": "bash ./deploy/pull.sh && bash ./deploy/deploy.sh && bash ./deploy/start.sh"
   },
   "repository": {
     "type": "git",

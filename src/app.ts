@@ -51,7 +51,7 @@ app.use(AddContext());
 /* Router */
 /* ######################################## */
 app.use("/api", api);
-api.use("/ping", (_req: Request, res: Response, _next: NextFunction) => {
+api.get("/ping", (_req: Request, res: Response, _next: NextFunction) => {
   res.status(200).send({
     message: "Pinged",
   });

@@ -128,19 +128,19 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       },
     ];
 
-    res.status(200).json({
+    return res.status(200).json({
       links: response,
       details,
     });
   } catch (err) {
     console.log({ err });
-    next(err);
+    return next(err);
   }
 });
 
 /* Method Middleware */
 router.use("/", (req: Request, _res: Response, next: NextFunction) => {
-  if (req.method !== "GET") {
+  if (req.method !== "POST") {
     const error = new MethodNotAllowedError();
     return next(error);
   }

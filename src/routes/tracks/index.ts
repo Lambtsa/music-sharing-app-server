@@ -97,7 +97,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
 /* Method Middleware */
 router.use("/", (req: Request, _res: Response, next: NextFunction) => {
-  if (req.method !== "GET") {
+  if (req.method !== "POST") {
     const error = new MethodNotAllowedError();
     return next(error);
   }

@@ -44,9 +44,6 @@ app.use(
     origin: config.cors.origin,
   }),
 );
-// app.use(cors({
-//   origin: "http://localhost:3000",
-// }));
 app.use(AddContext());
 app.use(express.static("public"));
 

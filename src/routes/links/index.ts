@@ -28,7 +28,6 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     const {
       body: { url, user },
     } = req;
-    console.log({ body: req.body });
     if (!url) {
       return next(new BadRequestError());
     }

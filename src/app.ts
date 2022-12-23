@@ -46,6 +46,7 @@ app.use(
   }),
 );
 app.use(AddContext());
+app.use(express.static("public"));
 
 /* ######################################## */
 /* Router */

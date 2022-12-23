@@ -39,12 +39,13 @@ app.use(express.json());
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms"),
 );
-app.use(
-  cors({
-    origin: config.cors.origin,
-    methods: config.cors.methods,
-  }),
-);
+// app.use(
+//   cors({
+//     origin: config.cors.origin,
+//     methods: config.cors.methods,
+//   }),
+// );
+app.use(cors());
 app.use(AddContext());
 app.use(express.static("public"));
 

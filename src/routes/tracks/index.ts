@@ -43,7 +43,6 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
         const { ip, geolocation } = user as UserDataInput;
         await db.transaction(async (trx: Knex.Transaction) => {
           await db<Search>("searches")
-            .transacting(trx)
             .insert({
               id: uuid(),
               ip: ip,
@@ -54,7 +53,8 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
               search: artist,
               search_type: "artist",
               url_type: null,
-            });
+            })
+            .transacting(trx);
         });
       }
       return res.status(200).json(response);
@@ -73,7 +73,6 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
         const { ip, geolocation } = user as UserDataInput;
         await db.transaction(async (trx: Knex.Transaction) => {
           await db<Search>("searches")
-            .transacting(trx)
             .insert({
               id: uuid(),
               ip: ip,
@@ -84,7 +83,8 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
               search: track,
               search_type: "track",
               url_type: null,
-            });
+            })
+            .transacting(trx);
         });
       }
       return res.status(200).json(response);

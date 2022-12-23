@@ -4,7 +4,7 @@ import tracks from "./tracks";
 
 const router = express.Router();
 
-router.use("/links", links);
 router.use("/tracks", tracks);
+router.use("/links", links);
 
 export default router;

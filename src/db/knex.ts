@@ -1,6 +1,6 @@
 import Knex from "knex";
 
-export const createConnection = async () => {
+export const createConnection = () => {
   return Knex({
     client: "pg",
     connection: {

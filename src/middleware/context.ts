@@ -1,6 +1,6 @@
-import { createConnection } from "db/knex";
+import { createConnection } from "@core/db";
 import { NextFunction, Request, Response } from "express";
-import { DeezerApi, SpotifyApi, YoutubeApi } from "modules";
+import { DeezerApi, SpotifyApi, YoutubeApi } from "@modules";
 
 export const AddContext =
   () => async (req: Request, _res: Response, next: NextFunction) => {

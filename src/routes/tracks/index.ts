@@ -5,7 +5,7 @@ import { v4 as uuid } from "uuid";
 import { BadRequestError, MethodNotAllowedError } from "@core/errors";
 import { sanitiseData } from "@helpers/sanitise";
 import { UserDataInput } from "@types";
-import { Search } from "db/tables.types";
+import { Search } from "types/tables.types";
 
 const router = express.Router();
 

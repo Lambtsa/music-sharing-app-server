@@ -24,7 +24,10 @@
       "@config": ["config/index"],
       "@constants/*": ["constants/*"],
       "@core/*": ["core/*"],
+      "@db/*": ["db/*"],
       "@helpers/*": ["helpers/*"],
+      "@middleware/*": ["middleware/*"],
+      "@modules": ["modules/index"],
       "@routes/*": ["routes/*"],
       "@types": ["types/index"]
     },

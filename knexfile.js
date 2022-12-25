@@ -7,11 +7,16 @@ require("dotenv").config({ path: ".env.local" });
 module.exports = {
   client: "pg",
   connection: {
-    host: process.env.AWS_DB_HOST || "localhost",
-    port: process.env.AWS_DB_PORT || 5432,
-    user: process.env.AWS_DB_USER || "postgres",
-    password: process.env.AWS_DB_PASSWORD || "password",
-    database: process.env.DATABASE || "",
+    host: "217.160.153.197",
+    // host: process.env.AWS_DB_HOST || "localhost",
+    port: 5432,
+    // port: process.env.AWS_DB_PORT || 5432,
+    user: "audiolinx",
+    // user: process.env.AWS_DB_USER || "postgres",
+    password: "7vQ25%$ZjOeQ",
+    // password: process.env.AWS_DB_PASSWORD || "password",
+    database: "audiolinx",
+    // database: process.env.DATABASE || "",
   },
   searchPath: [process.env.SCHEMA || "postgres", "public"],
   pool: {

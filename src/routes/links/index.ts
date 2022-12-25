@@ -10,7 +10,7 @@ import {
 import { isValidData } from "@helpers/sanitise";
 import { determineUrlType, getTrackId } from "@helpers/url";
 import { GetMusicLinksInput, LinksResponseData, UserDataInput } from "@types";
-import { Search } from "db/tables.types";
+import { Search } from "types/tables.types";
 import { Knex } from "knex";
 
 const router = express.Router();
@@ -37,6 +37,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       urlSchema,
     );
 
+    /* TODO: How to quantify how many people search with youtube url? */
     const urlType = determineUrlType(sanitisedUrlInput);
 
     if (!urlType) {

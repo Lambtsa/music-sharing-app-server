@@ -1,14 +1,16 @@
 import Knex from "knex";
 
+const isProd = process.env.NODE_ENV === "production";
+
 export const createConnection = () => {
   return Knex({
     client: "pg",
     connection: {
-      host: process.env.AWS_DB_HOST,
-      port: 5432,
-      user: process.env.AWS_DB_USER,
-      password: process.env.AWS_DB_PASSWORD,
-      database: "",
+      host: isProd ? process.env.AWS_DB_HOST || "localhost" : "localhost",
+      port: isProd ? process.env.AWS_DB_PORT || 5433 : 5432,
+      user: isProd ? process.env.AWS_DB_USER || "postgres" : "postgres",
+      password: isProd ? process.env.AWS_DB_PASSWORD || "postgres" : "postgres",
+      database: isProd ? process.env.AWS_DATABASE || "audiolinx" : "audiolinx",
     },
     searchPath: ["public", "public"],
     acquireConnectionTimeout: 15000,

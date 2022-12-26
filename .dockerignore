@@ -1,0 +1,15 @@
+.husky
+.vscode
+.localstack
+
+.eslintrc.json
+.prettierrc
+jest.config.js
+
+*.md
+
+**/*.test.ts
+
+node_modules
+
+Dockerfile

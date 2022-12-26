@@ -74,8 +74,8 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     /* ######################################## */
     /* Save Data to DB */
     /* ######################################## */
-    if (!!user && !!user.ip && !!user.geolocation) {
-      /* TODO: Add transaction */
+    if (!!user.ip && !!user.geolocation) {
+      /* TODO: Can ip be undefined ? */
       const { ip, geolocation } = user as UserDataInput;
       await db.transaction(async (trx: Knex.Transaction) => {
         await db<Search>("searches")

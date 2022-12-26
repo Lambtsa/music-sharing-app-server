@@ -1,5 +1,7 @@
 require("dotenv").config({ path: ".env.local" });
 
+const isProd = process.env.NODE_ENV === "production";
+
 /**
  * @type { Object.<string, import("knex").Knex.Config> }
  */
@@ -7,11 +9,11 @@ require("dotenv").config({ path: ".env.local" });
 module.exports = {
   client: "pg",
   connection: {
-    host: process.env.AWS_DB_HOST || "localhost",
-    port: process.env.AWS_DB_PORT || 5432,
-    user: process.env.AWS_DB_USER || "postgres",
-    password: process.env.AWS_DB_PASSWORD || "password",
-    database: process.env.AWS_DATABASE || "postgres",
+    host: isProd ? process.env.AWS_DB_HOST || "localhost" : "localhost",
+    port: isProd ? process.env.AWS_DB_PORT || 5432 : 5433,
+    user: isProd ? process.env.AWS_DB_USER || "postgres" : "postgres",
+    password: isProd ? process.env.AWS_DB_PASSWORD || "postgres" : "postgres",
+    database: isProd ? process.env.AWS_DATABASE || "audiolinx" : "audiolinx",
   },
   searchPath: [process.env.SCHEMA || "postgres", "public"],
   pool: {

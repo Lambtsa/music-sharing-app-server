@@ -1,4 +1,8 @@
-import { CustomApiErrorMessages, ExternalApiError } from "@core/errors";
+import {
+  BadGatewayError,
+  CustomApiErrorMessages,
+  ExternalApiError,
+} from "@core/errors";
 import { GetMusicLinksInput } from "@types";
 import fetch from "node-fetch";
 import { YoutubeApiResponse } from "./youtube.types";
@@ -36,26 +40,30 @@ export class YoutubeApi {
    * @example 'https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&q=artist:"aloe blacc" track:"i need a dollar"'
    */
   async searchYoutube(input: GetMusicLinksInput) {
-    const youtubeUri = this.buildYoutubeApiUrl(input);
+    try {
+      const youtubeUri = this.buildYoutubeApiUrl(input);
 
-    const response = await fetch(youtubeUri.toString(), {
-      headers: {
-        "Content-Type": "application/json; charset=UTF-8",
-      },
-    });
+      const response = await fetch(youtubeUri.toString(), {
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+        },
+      });
 
-    if (!response.ok) {
-      throw new ExternalApiError();
+      if (!response.ok) {
+        throw new ExternalApiError();
+      }
+
+      const data = (await response.json()) as YoutubeApiResponse;
+
+      /* TODO: This will need optimising because currently only returns the first element found + need better searching */
+      const track = data.items[0]?.id.videoId;
+
+      return track
+        ? this.buildYoutubeVideoUrl(track).toString()
+        : CustomApiErrorMessages.NoTrack;
+    } catch (err) {
+      throw new BadGatewayError(err);
     }
-
-    const data = (await response.json()) as YoutubeApiResponse;
-
-    /* TODO: This will need optimising because currently only returns the first element found + need better searching */
-    const track = data.items[0]?.id.videoId;
-
-    return track
-      ? this.buildYoutubeVideoUrl(track).toString()
-      : CustomApiErrorMessages.NoTrack;
   }
 
   /**

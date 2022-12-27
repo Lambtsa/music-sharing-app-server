@@ -1,4 +1,8 @@
-import { CustomApiErrorMessages, ExternalApiError } from "@core/errors";
+import {
+  BadGatewayError,
+  CustomApiErrorMessages,
+  ExternalApiError,
+} from "@core/errors";
 import { GetMusicLinksInput } from "@types";
 import fetch from "node-fetch";
 import { DeezerApiResponse, DeezerTrack } from "./deezer.types";
@@ -25,26 +29,30 @@ export class DeezerApi {
    * @example 'https://api.deezer.com/search?q=artist:"aloe blacc" track:"i need a dollar"'
    */
   async searchDeezer(input: GetMusicLinksInput) {
-    const deezerUri = this.buildDeezerApiUrl(input);
+    try {
+      const deezerUri = this.buildDeezerApiUrl(input);
 
-    const response = await fetch(deezerUri.toString(), {
-      headers: {
-        "Content-Type": "application/json; charset=UTF-8",
-      },
-    });
+      const response = await fetch(deezerUri.toString(), {
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+        },
+      });
 
-    if (!response.ok) {
-      throw new ExternalApiError();
+      if (!response.ok) {
+        throw new ExternalApiError();
+      }
+
+      const { data } = (await response.json()) as DeezerApiResponse;
+
+      /* TODO: This will need optimising because currently only returns the first element found + need better searching */
+      const track = data.find((item) =>
+        item.title.toLowerCase().includes(input.track.toLowerCase()),
+      );
+
+      return track?.link || CustomApiErrorMessages.NoTrack;
+    } catch (err) {
+      throw new BadGatewayError(err);
     }
-
-    const { data } = (await response.json()) as DeezerApiResponse;
-
-    /* TODO: This will need optimising because currently only returns the first element found + need better searching */
-    const track = data.find((item) =>
-      item.title.toLowerCase().includes(input.track.toLowerCase()),
-    );
-
-    return track?.link || CustomApiErrorMessages.NoTrack;
   }
 
   /**

@@ -15,6 +15,7 @@ module.exports = {
     password: isProd ? process.env.AWS_DB_PASSWORD : "postgres",
     database: isProd ? process.env.AWS_DATABASE : "audiolinx",
     ssl: {
+      // require: true,
       rejectUnauthorized: false,
     },
   },

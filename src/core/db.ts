@@ -6,11 +6,11 @@ export const createConnection = () => {
   return Knex({
     client: "pg",
     connection: {
-      host: isProd ? process.env.AWS_DB_HOST || "localhost" : "localhost",
-      port: isProd ? process.env.AWS_DB_PORT || 5433 : 5432,
-      user: isProd ? process.env.AWS_DB_USER || "postgres" : "postgres",
-      password: isProd ? process.env.AWS_DB_PASSWORD || "postgres" : "postgres",
-      database: isProd ? process.env.AWS_DATABASE || "audiolinx" : "audiolinx",
+      host: isProd ? process.env.AWS_DB_HOST : "localhost",
+      port: isProd ? process.env.AWS_DB_PORT : 5432,
+      user: isProd ? process.env.AWS_DB_USER : "postgres",
+      password: isProd ? process.env.AWS_DB_PASSWORD : "postgres",
+      database: isProd ? process.env.AWS_DATABASE : "audiolinx",
     },
     searchPath: ["public", "public"],
     acquireConnectionTimeout: 15000,

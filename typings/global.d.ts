@@ -14,9 +14,6 @@ declare namespace NodeJS {
     readonly AWS_DB_USER: string;
     readonly AWS_DB_PORT: number;
     readonly AWS_DATABASE: string;
-
-    readonly UPSTASH_REDIS_REST_URL: string;
-    readonly UPSTASH_REDIS_REST_TOKEN: string;
   }
 }
 

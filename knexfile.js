@@ -14,7 +14,7 @@ module.exports = {
     user: isProd ? process.env.AWS_DB_USER : "postgres",
     password: isProd ? process.env.AWS_DB_PASSWORD : "postgres",
     database: isProd ? process.env.AWS_DATABASE : "audiolinx",
-    ssl: true,
+    ssl: { rejectUnauthorized: false },
   },
   searchPath: [process.env.SCHEMA || "postgres", "public"],
   pool: {

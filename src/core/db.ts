@@ -11,6 +11,7 @@ export const createConnection = () => {
       user: isProd ? process.env.AWS_DB_USER : "postgres",
       password: isProd ? process.env.AWS_DB_PASSWORD : "postgres",
       database: isProd ? process.env.AWS_DATABASE : "audiolinx",
+      ssl: { rejectUnauthorized: false },
     },
     searchPath: ["public", "public"],
     acquireConnectionTimeout: 15000,

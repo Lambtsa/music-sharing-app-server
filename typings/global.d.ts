@@ -14,6 +14,11 @@ declare namespace NodeJS {
     readonly AWS_DB_USER: string;
     readonly AWS_DB_PORT: number;
     readonly AWS_DATABASE: string;
+    readonly AWS_DB_PASSWORD_DEV: string;
+    readonly AWS_DB_HOST_DEV: string;
+    readonly AWS_DB_USER_DEV: string;
+    readonly AWS_DB_PORT_DEV: number;
+    readonly AWS_DATABASE_DEV: string;
   }
 }
 

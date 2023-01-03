@@ -34,7 +34,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       /* ######################################## */
       /* Save Data to DB */
       /* ######################################## */
-      if (!!user.ip && !!user.geolocation) {
+      if (user.ip) {
         /* TODO: Add transaction */
         const { ip, geolocation } = user as UserDataInput;
         await db.transaction(async (trx: Knex.Transaction) => {
@@ -64,7 +64,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       /* ######################################## */
       /* Save Data to DB */
       /* ######################################## */
-      if (!!user.ip && !!user.geolocation) {
+      if (user.ip) {
         /* TODO: Add transaction */
         const { ip, geolocation } = user as UserDataInput;
         await db.transaction(async (trx: Knex.Transaction) => {

@@ -31,10 +31,6 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     } = req.context;
 
     if (artist) {
-      const response = await spotify.getListOfAlbumsByArtist(
-        sanitiseData(rawArtist),
-      );
-
       /* ######################################## */
       /* Save Data to DB */
       /* ######################################## */
@@ -57,14 +53,14 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
             .transacting(trx);
         });
       }
+
+      const response = await spotify.getListOfAlbumsByArtist(
+        sanitiseData(rawArtist),
+      );
       return res.status(200).json(response);
     }
 
     if (track) {
-      const response = await spotify.getListOfSongsByTrack(
-        sanitiseData(rawTrack),
-      );
-
       /* ######################################## */
       /* Save Data to DB */
       /* ######################################## */
@@ -87,6 +83,10 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
             .transacting(trx);
         });
       }
+
+      const response = await spotify.getListOfSongsByTrack(
+        sanitiseData(rawTrack),
+      );
       return res.status(200).json(response);
     }
   } catch (err) {

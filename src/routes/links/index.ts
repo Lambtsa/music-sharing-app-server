@@ -37,44 +37,17 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       urlSchema,
     );
 
-    /* TODO: How to quantify how many people search with youtube url? */
     const urlType = determineUrlType(sanitisedUrlInput);
-
-    if (!urlType) {
-      return next(new BadRequestError());
-    }
-
-    const trackId = getTrackId(sanitisedUrlInput, urlType);
-
-    if (!trackId) {
-      return next(new BadRequestError());
-    }
 
     const {
       db,
       external: { spotify, deezer, youtube },
     } = req.context;
 
-    let details: GetMusicLinksInput;
-
-    switch (urlType) {
-      case "spotifyApi":
-      case "spotify": {
-        details = await spotify.getTrackDetailsById(trackId);
-        break;
-      }
-      case "deezer": {
-        details = await deezer.getTrackDetailsByDeezerId(trackId);
-        break;
-      }
-      case "youtube": {
-        throw new UnsupportedUrlError();
-      }
-    }
     /* ######################################## */
     /* Save Data to DB */
     /* ######################################## */
-    if (!!user.ip && !!user.geolocation) {
+    if (user.ip) {
       /* TODO: Can ip be undefined ? */
       const { ip, geolocation } = user as UserDataInput;
       await db.transaction(async (trx: Knex.Transaction) => {
@@ -92,6 +65,33 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
           })
           .transacting(trx);
       });
+    }
+
+    if (!urlType) {
+      return next(new BadRequestError());
+    }
+
+    const trackId = getTrackId(sanitisedUrlInput, urlType);
+
+    if (!trackId) {
+      return next(new BadRequestError());
+    }
+
+    let details: GetMusicLinksInput;
+
+    switch (urlType) {
+      case "spotifyApi":
+      case "spotify": {
+        details = await spotify.getTrackDetailsById(trackId);
+        break;
+      }
+      case "deezer": {
+        details = await deezer.getTrackDetailsByDeezerId(trackId);
+        break;
+      }
+      case "youtube": {
+        throw new UnsupportedUrlError();
+      }
     }
 
     /* ######################################## */

@@ -9,6 +9,7 @@ export const createConnection = () => {
     connection: isProd ? config.prod.connection : config.dev.connection,
     searchPath: ["public", "public"],
     acquireConnectionTimeout: 15000,
+    debug: !isProd,
     pool: {
       min: 0,
       max: 1000,

@@ -44,6 +44,10 @@ app.use(
     origin: config.cors.origin,
   }),
 );
+
+/* ######################################## */
+/* Add db connection to middleware - This means that for each request we make a connection  */
+/* ######################################## */
 app.use(AddContext());
 app.use(express.static("public"));
 

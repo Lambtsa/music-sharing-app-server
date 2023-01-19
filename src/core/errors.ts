@@ -20,6 +20,17 @@ export class CustomBaseError extends Error {
   }
 }
 
+export class DbConnectionError extends Error {
+  statusCode = 503;
+
+  constructor(message?: string) {
+    super(message);
+
+    // 👇️ because we are extending a built-in class
+    Object.setPrototypeOf(this, DbConnectionError.prototype);
+  }
+}
+
 export class BadGatewayError extends CustomBaseError {
   statusCode = 502;
   message = CustomApiErrorMessages.NoAccessToken;

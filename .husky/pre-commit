@@ -24,13 +24,13 @@ npm run lint:tsc ||
     false;
 )
 
-# Check tsconfig standards
-# npm run test ||
-# (
-#     echo 'Some tests fail
-#             Please verify why the tests are failing and start again'
-#     false;
-# )
+# Run tests
+npm run test ||
+(
+    echo 'Some tests fail
+            Please verify why the tests are failing and start again'
+    false;
+)
 
 
 # If everything passes... Now we can commit

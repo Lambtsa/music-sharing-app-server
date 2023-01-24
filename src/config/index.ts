@@ -36,6 +36,7 @@ export const config: Config = {
       user: process.env.AWS_DB_USER_DEV,
       password: process.env.AWS_DB_PASSWORD_DEV,
       database: process.env.AWS_DATABASE_DEV,
+      // ssl: { rejectUnauthorized: false },
     },
   },
   prod: {

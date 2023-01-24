@@ -8,7 +8,7 @@ dotenv.config({ path: "./.env.test" });
 const youtube = new YoutubeApi();
 
 describe("buildYoutubeApiUrl helper", () => {
-  const inputData: GetMusicLinksInput = {
+  const inputData: Pick<GetMusicLinksInput, "artist" | "track"> = {
     artist: "Last Train",
     track: "Fragile",
   };

@@ -1,15 +1,9 @@
 import {
   GetMusicLinksInput,
-  TrackItem,
-  TrackResponse,
-  AlbumResponse,
-} from "@types";
-import {
-  AccessTokenBody,
   ListOfAlbumsReturnType,
   ListOfTracksReturnType,
   SearchSpotifyReturnType,
-} from "./spotify.types";
+} from "@types";
 import {
   ExternalApiError,
   BadGatewayError,
@@ -17,6 +11,12 @@ import {
   TrackNotFoundError,
 } from "@core/errors";
 import fetch from "node-fetch";
+import {
+  AccessTokenBody,
+  AlbumResponse,
+  TrackItem,
+  TrackResponse,
+} from "./spotify.api.types";
 
 export class SpotifyApi {
   #tokenUrl = "https://accounts.spotify.com/api/token";
@@ -69,7 +69,10 @@ export class SpotifyApi {
    * Builds spotify URL using base, artist and track
    * @returns Spotify API URL
    */
-  buildSpotifyApiUrl({ artist, track }: GetMusicLinksInput) {
+  buildSpotifyApiUrl({
+    artist,
+    track,
+  }: Pick<GetMusicLinksInput, "artist" | "track">) {
     const url = new URL(this.#searchUrl);
     url.searchParams.append("type", "track");
     url.searchParams.append("q", `artist:"${artist}" track:"${track}"`);
@@ -123,7 +126,7 @@ export class SpotifyApi {
    * @see https://developer.spotify.com/documentation/web-api/reference/#/operations/search
    */
   async searchSpotify(
-    input: GetMusicLinksInput,
+    input: Pick<GetMusicLinksInput, "artist" | "track">,
     spotifyId?: string,
   ): Promise<SearchSpotifyReturnType> {
     try {
@@ -232,6 +235,7 @@ export class SpotifyApi {
       return {
         artist: data.artists[0]?.name || "No artist",
         track: data.name,
+        album: data.album.name,
       };
     } catch (err) {
       throw new BadGatewayError(err);

@@ -1,6 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
 import { z } from "zod";
-import { v4 as uuid } from "uuid";
 
 import {
   BadRequestError,
@@ -10,8 +9,8 @@ import {
 import { isValidData } from "@helpers/sanitise";
 import { determineUrlType, getTrackId } from "@helpers/url";
 import { GetMusicLinksInput, LinksResponseData, UserDataInput } from "@types";
-import { Search } from "types/tables.types";
 import { Knex } from "knex";
+import { Album, Artist, Search, Track } from "@modules";
 
 const router = express.Router();
 
@@ -49,12 +48,12 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     /* ######################################## */
     if (user.ip) {
       /* TODO: Can ip be undefined ? */
-      const { ip, geolocation } = user as UserDataInput;
+      const { geolocation } = user as UserDataInput;
       await db.transaction(async (trx: Knex.Transaction) => {
-        await db<Search>("searches")
-          .insert({
-            id: uuid(),
-            ip: ip,
+        await Search.db.insert({
+          db,
+          input: {
+            ip: user.ip,
             city: geolocation?.city || null,
             country: geolocation?.country || null,
             coordinates: geolocation?.coordinates || null,
@@ -62,8 +61,9 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
             search: url,
             search_type: "url",
             url_type: urlType,
-          })
-          .transacting(trx);
+          },
+          trx,
+        });
       });
     }
 
@@ -94,11 +94,31 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       }
     }
 
+    await db.transaction(async (trx: Knex.Transaction) => {
+      const artist = await Artist.db.insert({
+        db,
+        input: { name: details.artist },
+        trx,
+      });
+
+      const album = await Album.db.insert({
+        db,
+        input: { artist_id: artist.id, name: details.album },
+        trx,
+      });
+
+      await Track.db.insert({
+        db,
+        input: { album_id: album.id, title: details.track },
+        trx,
+      });
+    });
+
     /* ######################################## */
     /* SPOTIFY */
     /* Use spotify to find other titles.
-      /* If url passed in is spotifyesque then we can use the id directly to query api
-      /* ######################################## */
+    /* If url passed in is spotifyesque then we can use the id directly to query api
+    /* ######################################## */
     const isSpotifyId = urlType === "spotifyApi" || urlType === "spotify";
     const { url: spotifyUri } = isSpotifyId
       ? await spotify.searchSpotify(details, trackId)

@@ -8,7 +8,7 @@ dotenv.config({ path: "./.env.test" });
 const spotify = new SpotifyApi();
 
 describe("buildSpotifyApiUrl helper", () => {
-  const inputData: GetMusicLinksInput = {
+  const inputData: Pick<GetMusicLinksInput, "artist" | "track"> = {
     artist: "Last Train",
     track: "Fragile",
   };

@@ -5,7 +5,7 @@ import {
 } from "@core/errors";
 import { GetMusicLinksInput } from "@types";
 import fetch from "node-fetch";
-import { YoutubeApiResponse } from "./youtube.types";
+import { YoutubeApiResponse } from "./youtube.api.types";
 
 export class YoutubeApi {
   #searchUrl = "https://www.googleapis.com/youtube/v3/search";
@@ -16,7 +16,10 @@ export class YoutubeApi {
    * Builds youtube URL using base, artist and track
    * @returns Youtube API URL
    */
-  buildYoutubeApiUrl({ artist, track }: GetMusicLinksInput): URL {
+  buildYoutubeApiUrl({
+    artist,
+    track,
+  }: Pick<GetMusicLinksInput, "artist" | "track">): URL {
     const url = new URL(this.#searchUrl);
     url.searchParams.append("key", process.env.YOUTUBE_API_KEY);
     url.searchParams.append("q", `artist:"${artist}" track:"${track}"`);
@@ -39,7 +42,7 @@ export class YoutubeApi {
    * @see https://developers.google.com/youtube/v3/docs
    * @example 'https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&q=artist:"aloe blacc" track:"i need a dollar"'
    */
-  async searchYoutube(input: GetMusicLinksInput) {
+  async searchYoutube(input: Pick<GetMusicLinksInput, "artist" | "track">) {
     try {
       const youtubeUri = this.buildYoutubeApiUrl(input);
 

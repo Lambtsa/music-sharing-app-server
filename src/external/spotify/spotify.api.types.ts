@@ -1,4 +1,10 @@
-import { SearchInputType } from "../music.types";
+import { SearchInputType } from "@types";
+
+export interface AccessTokenBody {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+}
 
 export interface ArtistItem {
   external_urls: {

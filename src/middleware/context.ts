@@ -1,8 +1,11 @@
 import { createConnection } from "@core/db";
 import { NextFunction, Request, Response } from "express";
-import { DeezerApi, SpotifyApi, YoutubeApi } from "@modules";
+import { DeezerApi, SpotifyApi, YoutubeApi } from "@external";
 import { DbConnectionError } from "@core/errors";
 
+/**
+ * Adds context to each request allowing access to external classes and db connection
+ */
 export const AddContext =
   () => async (req: Request, _res: Response, next: NextFunction) => {
     try {

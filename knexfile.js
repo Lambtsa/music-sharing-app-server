@@ -24,7 +24,7 @@ module.exports = {
     database: isProd
       ? process.env.AWS_DATABASE
       : process.env.AWS_DATABASE_DEV || "audiolinx",
-    ssl: { rejectUnauthorized: false },
+    ssl: isProd ? { rejectUnauthorized: false } : false,
   },
   searchPath: [process.env.SCHEMA || "postgres", "public"],
   pool: {

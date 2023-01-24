@@ -25,6 +25,7 @@
       "@constants/*": ["constants/*"],
       "@core/*": ["core/*"],
       "@db/*": ["db/*"],
+      "@external": ["external/index"],
       "@helpers/*": ["helpers/*"],
       "@middleware/*": ["middleware/*"],
       "@modules": ["modules/index"],

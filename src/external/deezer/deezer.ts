@@ -5,7 +5,7 @@ import {
 } from "@core/errors";
 import { GetMusicLinksInput } from "@types";
 import fetch from "node-fetch";
-import { DeezerApiResponse, DeezerTrack } from "./deezer.types";
+import { DeezerApiResponse, DeezerTrack } from "./deezer.api.types";
 
 export class DeezerApi {
   #searchUrl = "https://api.deezer.com/search";
@@ -16,7 +16,10 @@ export class DeezerApi {
    * Builds spotify URL using base, artist and track
    * @returns Deezer API URL
    */
-  buildDeezerApiUrl({ artist, track }: GetMusicLinksInput) {
+  buildDeezerApiUrl({
+    artist,
+    track,
+  }: Pick<GetMusicLinksInput, "artist" | "track">) {
     const url = new URL(this.#searchUrl);
     url.searchParams.append("q", `artist:"${artist}" track:"${track}"`);
     return url;
@@ -28,7 +31,7 @@ export class DeezerApi {
    * @see https://developers.deezer.com/api/search
    * @example 'https://api.deezer.com/search?q=artist:"aloe blacc" track:"i need a dollar"'
    */
-  async searchDeezer(input: GetMusicLinksInput) {
+  async searchDeezer(input: Pick<GetMusicLinksInput, "artist" | "track">) {
     try {
       const deezerUri = this.buildDeezerApiUrl(input);
 
@@ -77,6 +80,7 @@ export class DeezerApi {
     return {
       artist: data.artist.name,
       track: data.title,
+      album: data.album.title,
     };
   }
 }

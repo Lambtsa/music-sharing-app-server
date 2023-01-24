@@ -11,6 +11,7 @@ describe("buildDeezerApiUrl helper", () => {
   const inputData: GetMusicLinksInput = {
     artist: "Last Train",
     track: "Fragile",
+    album: "Fragile",
   };
   test("Should return valid URL Object", () => {
     expect(deezer.buildDeezerApiUrl(inputData)).toBeInstanceOf(URL);

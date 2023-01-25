@@ -2,10 +2,15 @@ import dotenv from "dotenv";
 
 import { GetMusicLinksInput } from "@types";
 import { SpotifyApi } from "./spotify";
+import logger from "pino";
+import { RedisContext } from "@core/redis";
 
 dotenv.config({ path: "./.env.test" });
 
-const spotify = new SpotifyApi();
+const log = logger();
+
+const client = new RedisContext(log);
+const spotify = new SpotifyApi(client);
 
 describe("buildSpotifyApiUrl helper", () => {
   const inputData: Pick<GetMusicLinksInput, "artist" | "track"> = {

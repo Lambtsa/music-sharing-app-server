@@ -6,9 +6,8 @@ import {
   DbConnectionError,
   RedisConnectionError,
 } from "@core/errors";
-import * as redis from "redis";
-import { RedisClientType } from "redis";
 import logger from "pino";
+import { RedisContext } from "@core/redis";
 
 /**
  * Adds context to each request allowing access to external classes and db connection
@@ -23,27 +22,19 @@ export const AddContext =
       /* ######################################## */
       await db.raw("SELECT 1+1 as result");
 
-      const client: RedisClientType = redis.createClient();
       const log = logger();
 
-      client.on("error", (error) => {
-        log.error(`Error : ${error}`);
-        next(new RedisConnectionError("Redis connection error"));
-      });
-      client.on("connect", () => log.info("Redis connected"));
-      client.on("reconnecting", () => log.info("Redis reconnecting"));
-      client.on("ready", () => log.info("Redis ready!"));
-
+      const client = new RedisContext(log);
       await client.connect();
 
       const context: Express.RequestContext = {
         db,
         external: {
-          spotify: new SpotifyApi(),
+          spotify: new SpotifyApi(client),
           deezer: new DeezerApi(),
           youtube: new YoutubeApi(),
         },
-        // redis: client,
+        redis: client,
         log,
       };
       req.context = context;
@@ -51,15 +42,12 @@ export const AddContext =
     } catch (err) {
       switch (true) {
         case err instanceof DbConnectionError: {
-          console.log({ err });
           return next(new DbConnectionError("Db connection error"));
         }
         case err instanceof RedisConnectionError: {
-          console.log({ err });
           return next(new RedisConnectionError("Redis connection error"));
         }
         default: {
-          console.log({ err });
           return next(new ContextError("Context error"));
         }
       }

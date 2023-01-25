@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import { Knex } from "knex";
 
 import { BadRequestError, MethodNotAllowedError } from "@core/errors";
-import { sanitiseData } from "@helpers/sanitise";
+import { createRedisIdentifier, sanitiseData } from "@helpers/sanitise";
 import { UserDataInput } from "@types";
 import { Album, Artist, Search, Track } from "@modules";
 
@@ -21,12 +21,13 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     }
 
     /* We sanitise before checking to make sure that we have an accurate input */
-    const artist = sanitiseData(rawArtist || "");
-    const track = sanitiseData(rawTrack || "");
+    const artist = sanitiseData(rawArtist || "", { lowerCase: true });
+    const track = sanitiseData(rawTrack || "", { lowerCase: true });
 
     const {
       db,
       external: { spotify },
+      redis,
     } = req.context;
 
     if (artist) {
@@ -54,35 +55,48 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
         });
       }
 
-      const response = await spotify.getListOfAlbumsByArtist(
-        sanitiseData(rawArtist),
-      );
-      await Promise.all(
-        response.albums.map(async (albumInfo) => {
-          await db.transaction(async (trx: Knex.Transaction) => {
-            const artist = await Artist.db.insert({
-              db,
-              input: { name: albumInfo.artist },
-              trx,
-            });
+      const artistRedisIdentifier = createRedisIdentifier(artist);
+      const cachedResponse = await redis.client.get(artistRedisIdentifier);
 
-            const album = await Album.db.insert({
-              db,
-              input: { artist_id: artist.id, name: albumInfo.album },
-              trx,
-            });
-
-            await albumInfo.tracks.map(async (track) => {
-              await Track.db.insert({
+      if (cachedResponse) {
+        return res.status(200).json(JSON.parse(cachedResponse));
+      } else {
+        const response = await spotify.getListOfAlbumsByArtist(artist);
+        await redis.client.set(
+          artistRedisIdentifier,
+          JSON.stringify(response),
+          {
+            EX: 60,
+            NX: true,
+          },
+        );
+        await Promise.all(
+          response.albums.map(async (albumInfo) => {
+            await db.transaction(async (trx: Knex.Transaction) => {
+              const artist = await Artist.db.insert({
                 db,
-                input: { album_id: album.id, title: track.track },
+                input: { name: albumInfo.artist },
                 trx,
               });
+
+              const album = await Album.db.insert({
+                db,
+                input: { artist_id: artist.id, name: albumInfo.album },
+                trx,
+              });
+
+              await albumInfo.tracks.map(async (track) => {
+                await Track.db.insert({
+                  db,
+                  input: { album_id: album.id, title: track.track },
+                  trx,
+                });
+              });
             });
-          });
-        }),
-      );
-      return res.status(200).json(response);
+          }),
+        );
+        return res.status(200).json(response);
+      }
     }
 
     if (track) {
@@ -110,34 +124,44 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
         });
       }
 
-      const response = await spotify.getListOfSongsByTrack(
-        sanitiseData(rawTrack),
-      );
+      const trackRedisIdentifier = createRedisIdentifier(track);
+      const cachedResponse = await redis.client.get(trackRedisIdentifier);
 
-      await Promise.all(
-        response.tracks.map(async (track) => {
-          await db.transaction(async (trx: Knex.Transaction) => {
-            const artist = await Artist.db.insert({
-              db,
-              input: { name: track.artist },
-              trx,
-            });
+      if (cachedResponse) {
+        return res.status(200).json(JSON.parse(cachedResponse));
+      } else {
+        const response = await spotify.getListOfSongsByTrack(track);
 
-            const album = await Album.db.insert({
-              db,
-              input: { artist_id: artist.id, name: track.album },
-              trx,
-            });
+        await redis.client.set(trackRedisIdentifier, JSON.stringify(response), {
+          EX: 60,
+          NX: true,
+        });
 
-            await Track.db.insert({
-              db,
-              input: { title: track.track, album_id: album.id },
-              trx,
+        await Promise.all(
+          response.tracks.map(async (track) => {
+            await db.transaction(async (trx: Knex.Transaction) => {
+              const artist = await Artist.db.insert({
+                db,
+                input: { name: track.artist },
+                trx,
+              });
+
+              const album = await Album.db.insert({
+                db,
+                input: { artist_id: artist.id, name: track.album },
+                trx,
+              });
+
+              await Track.db.insert({
+                db,
+                input: { title: track.track, album_id: album.id },
+                trx,
+              });
             });
-          });
-        }),
-      );
-      return res.status(200).json(response);
+          }),
+        );
+        return res.status(200).json(response);
+      }
     }
   } catch (err) {
     req.context.log.error({ err });

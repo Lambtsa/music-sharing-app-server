@@ -1,6 +1,6 @@
 import { DeezerApi, SpotifyApi, YoutubeApi } from "@external";
 import Knex from "knex";
-// import { RedisClientType } from "redis";
+import { RedisContext } from "@core/redis";
 import { DestinationStream, Logger, LoggerOptions } from "pino";
 
 /* @see https://stackoverflow.com/a/68641378/16334980 */
@@ -13,7 +13,7 @@ declare global {
         deezer: DeezerApi;
         youtube: YoutubeApi;
       };
-      // redis: RedisClientType;
+      redis: RedisContext;
       log: Logger<LoggerOptions | DestinationStream>;
     }
     interface Request {

@@ -140,7 +140,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       return res.status(200).json(response);
     }
   } catch (err) {
-    console.log({ err });
+    req.context.log.error({ err });
     return next(err);
   }
 });

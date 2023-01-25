@@ -1,7 +1,14 @@
 import { createConnection } from "@core/db";
 import { NextFunction, Request, Response } from "express";
 import { DeezerApi, SpotifyApi, YoutubeApi } from "@external";
-import { DbConnectionError } from "@core/errors";
+import {
+  ContextError,
+  DbConnectionError,
+  RedisConnectionError,
+} from "@core/errors";
+import * as redis from "redis";
+import { RedisClientType } from "redis";
+import logger from "pino";
 
 /**
  * Adds context to each request allowing access to external classes and db connection
@@ -16,6 +23,19 @@ export const AddContext =
       /* ######################################## */
       await db.raw("SELECT 1+1 as result");
 
+      const client: RedisClientType = redis.createClient();
+      const log = logger();
+
+      client.on("error", (error) => {
+        log.error(`Error : ${error}`);
+        next(new RedisConnectionError("Redis connection error"));
+      });
+      client.on("connect", () => log.info("Redis connected"));
+      client.on("reconnecting", () => log.info("Redis reconnecting"));
+      client.on("ready", () => log.info("Redis ready!"));
+
+      await client.connect();
+
       const context: Express.RequestContext = {
         db,
         external: {
@@ -23,10 +43,25 @@ export const AddContext =
           deezer: new DeezerApi(),
           youtube: new YoutubeApi(),
         },
+        // redis: client,
+        log,
       };
       req.context = context;
       return next();
     } catch (err) {
-      next(new DbConnectionError("Db connection error"));
+      switch (true) {
+        case err instanceof DbConnectionError: {
+          console.log({ err });
+          return next(new DbConnectionError("Db connection error"));
+        }
+        case err instanceof RedisConnectionError: {
+          console.log({ err });
+          return next(new RedisConnectionError("Redis connection error"));
+        }
+        default: {
+          console.log({ err });
+          return next(new ContextError("Context error"));
+        }
+      }
     }
   };

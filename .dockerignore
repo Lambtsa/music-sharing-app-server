@@ -1,6 +1,20 @@
+.DS_Store
+
+**/node_modules/
+**/dist
+.git
+
+.gitignore
+.env
+.env.local
+.env.test
+
+**/coverage/
+
 .husky
 .vscode
-.localstack
+.postgres
+.deploy
 
 .eslintrc.json
 .prettierrc
@@ -9,7 +23,5 @@ jest.config.js
 *.md
 
 **/*.test.ts
-
-node_modules
 
 Dockerfile

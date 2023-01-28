@@ -20,6 +20,9 @@ interface Config {
   prod: ConfigType;
 }
 
+const { AWS_DB_HOST, AWS_DB_PORT, AWS_DB_USER, AWS_DB_PASSWORD, AWS_DATABASE } =
+  process.env;
+
 export const config: Config = {
   dev: {
     cors: {
@@ -31,11 +34,11 @@ export const config: Config = {
       max: 300,
     },
     connection: {
-      host: process.env.AWS_DB_HOST_DEV,
-      port: process.env.AWS_DB_PORT_DEV || 5433,
-      user: process.env.AWS_DB_USER_DEV,
-      password: process.env.AWS_DB_PASSWORD_DEV,
-      database: process.env.AWS_DATABASE_DEV,
+      host: "db",
+      user: "postgres",
+      password: "postgres",
+      database: "audiolinx",
+      port: 5432,
       // ssl: { rejectUnauthorized: false },
     },
   },
@@ -49,11 +52,11 @@ export const config: Config = {
       max: 100,
     },
     connection: {
-      host: process.env.AWS_DB_HOST,
-      port: process.env.AWS_DB_PORT,
-      user: process.env.AWS_DB_USER,
-      password: process.env.AWS_DB_PASSWORD,
-      database: process.env.AWS_DATABASE,
+      host: AWS_DB_HOST,
+      port: AWS_DB_PORT,
+      user: AWS_DB_USER,
+      password: AWS_DB_PASSWORD,
+      database: AWS_DATABASE,
       ssl: { rejectUnauthorized: false },
     },
   },

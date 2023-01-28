@@ -1,0 +1,49 @@
+version: "3.7"
+
+services:
+  # DATABASE
+  db:
+    image: postgres:14.3
+    container_name: db
+    restart: always
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=development
+    ports:
+      - 5433:5432
+    volumes:
+      - "./.postgres:/var/lib/postgresql/data"
+    networks:
+      - audiolinx-network
+
+  # API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: api
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - .env.local
+    environment:
+      - SPOTIFY_CLIENT_ID=$SPOTIFY_CLIENT_ID
+      - SPOTIFY_CLIENT_SECRET=$SPOTIFY_CLIENT_SECRET
+      - YOUTUBE_API_KEY=$YOUTUBE_API_KEY
+    ports:
+      - "80:8080"
+    volumes:
+      - .:/home/lambtsa/audiolinx/server
+      - node_modules:/home/lambtsa/audiolinx/server/node_modules
+    networks:
+      - audiolinx-network
+
+networks:
+  audiolinx-network:
+    driver: bridge
+
+volumes:
+  .postgres:
+  node_modules:

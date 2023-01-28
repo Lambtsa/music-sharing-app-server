@@ -1,0 +1,37 @@
+version: "3.7"
+
+services:
+  # DATABASE
+  db:
+    image: postgres:14.3
+    container_name: db
+    restart: always
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=production
+    ports:
+      - 5433:5432
+
+  # API
+  api:
+    container_name: api
+    restart: always
+    build: .
+    ports:
+      - 3000:80
+    external_links:
+      - db
+    depends_on:
+      - db
+    env_file:
+      - .env.local
+    environment:
+      - SPOTIFY_CLIENT_ID=$SPOTIFY_CLIENT_ID
+      - SPOTIFY_CLIENT_SECRET=$SPOTIFY_CLIENT_SECRET
+      - YOUTUBE_API_KEY=$YOUTUBE_API_KEY
+      - AWS_DB_HOST=$AWS_DB_HOST
+      - AWS_DB_USER=$AWS_DB_USER
+      - AWS_DB_PASSWORD=$AWS_DB_PASSWORD
+      - AWS_DB_PORT=$AWS_DB_PORT
+      - AWS_DATABASE=$AWS_DATABASE

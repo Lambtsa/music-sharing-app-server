@@ -6,7 +6,7 @@ import {
   MethodNotAllowedError,
   UnsupportedUrlError,
 } from "core/errors";
-import { isValidData } from "@helpers/sanitise";
+import { createRedisIdentifier, isValidData } from "@helpers/sanitise";
 import { determineUrlType, getTrackId } from "@helpers/url";
 import { GetMusicLinksInput, LinksResponseData, UserDataInput } from "@types";
 import { Knex } from "knex";
@@ -41,6 +41,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     const {
       db,
       external: { spotify, deezer, youtube },
+      redis,
     } = req.context;
 
     /* ######################################## */
@@ -103,7 +104,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
       const album = await Album.db.insert({
         db,
-        input: { artist_id: artist.id, name: details.album },
+        input: { artist_id: artist.id, name: details.albumName },
         trx,
       });
 
@@ -134,27 +135,40 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     /* ######################################## */
     const youtubeUri = await youtube.searchYoutube(details);
 
-    const response: LinksResponseData[] = [
-      {
-        name: "spotify",
-        url: spotifyUri,
-      },
-      {
-        name: "deezer",
-        url: deezerUri,
-      },
-      {
-        name: "youtube",
-        url: youtubeUri,
-      },
-    ];
+    const linkRedisIdentifier = createRedisIdentifier(
+      `${details.artist}-${details.track}`,
+    );
+    const cachedResponse = await redis.client.get(linkRedisIdentifier);
 
-    return res.status(200).json({
-      links: response,
-      details,
-    });
+    if (cachedResponse) {
+      return res.status(200).json(JSON.parse(cachedResponse));
+    } else {
+      const response: LinksResponseData[] = [
+        {
+          name: "spotify",
+          url: spotifyUri,
+        },
+        {
+          name: "deezer",
+          url: deezerUri,
+        },
+        {
+          name: "youtube",
+          url: youtubeUri,
+        },
+      ];
+      await redis.client.set(linkRedisIdentifier, JSON.stringify(response), {
+        EX: 60,
+        NX: true,
+      });
+
+      return res.status(200).json({
+        links: response,
+        details,
+      });
+    }
   } catch (err) {
-    console.log({ err });
+    req.context.log.error({ err });
     return next(err);
   }
 });

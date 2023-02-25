@@ -17,12 +17,16 @@ import {
   TrackItem,
   TrackResponse,
 } from "./spotify.api.types";
+import { RedisContext } from "@core/redis";
 
 export class SpotifyApi {
   #tokenUrl = "https://accounts.spotify.com/api/token";
   #searchUrl = "https://api.spotify.com/v1/search";
+  #redis: RedisContext;
 
-  // constructor() {}
+  constructor(redis: RedisContext) {
+    this.#redis = redis;
+  }
 
   /**
    * Encodes in base64 the clientId:clientSecret for use with spotify API
@@ -41,25 +45,40 @@ export class SpotifyApi {
    */
   async getAccessToken(): Promise<string> {
     try {
-      // TODO: figure out a way to only ping token API if needed - maybe add db
       const auth = this.encodeBearer();
 
-      const response = await fetch(this.#tokenUrl, {
-        method: "POST",
-        headers: {
-          Authorization: auth,
-          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-        },
-        body: "grant_type=client_credentials",
-      });
+      const tokenIdentifier = "spotify:access:token";
+      const cachedToken = await this.#redis.client.get(tokenIdentifier);
 
-      if (!response.ok) {
-        throw new BadGatewayError();
+      if (cachedToken) {
+        return JSON.parse(cachedToken);
+      } else {
+        const response = await fetch(this.#tokenUrl, {
+          method: "POST",
+          headers: {
+            Authorization: auth,
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          },
+          body: "grant_type=client_credentials",
+        });
+
+        if (!response.ok) {
+          throw new BadGatewayError();
+        }
+
+        const body = (await response.json()) as AccessTokenBody;
+
+        await this.#redis.client.set(
+          tokenIdentifier,
+          JSON.stringify(body.access_token),
+          {
+            EX: 3600,
+            NX: true,
+          },
+        );
+
+        return body.access_token;
       }
-
-      const body = (await response.json()) as AccessTokenBody;
-
-      return body.access_token;
     } catch (err) {
       throw new BadGatewayError(err);
     }
@@ -235,7 +254,7 @@ export class SpotifyApi {
       return {
         artist: data.artists[0]?.name || "No artist",
         track: data.name,
-        album: data.album.name,
+        albumName: data.album.name,
       };
     } catch (err) {
       throw new BadGatewayError(err);

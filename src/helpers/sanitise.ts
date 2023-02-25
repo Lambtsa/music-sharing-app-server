@@ -1,13 +1,39 @@
 import { BadRequestError } from "@core/errors";
 import { z } from "zod";
 
+interface SanitiseDataOptions {
+  lowerCase?: boolean;
+}
+
 /**
  * Small helper function to remove whitespace and trim
- * @example sanitiseData("LaSt    Train    ") // "last train"
+ * @example sanitiseData("LaSt    Train    ") // "LaSt Train"
  */
-export const sanitiseData = (input: string): string => {
+export const sanitiseData = (
+  input: string,
+  options?: SanitiseDataOptions,
+): string => {
   const rmWhitespaceRegex = /\s\s+/g;
-  return input.trim().replace(rmWhitespaceRegex, " ");
+  const sanitisedInput = input.trim().replace(rmWhitespaceRegex, " ");
+
+  if (options?.lowerCase) {
+    return sanitisedInput.toLowerCase();
+  }
+  return sanitisedInput;
+};
+
+/**
+ * Small helper function to remove whitespace, trim and return camelcase for redis identifier
+ * @example sanitiseData("LaSt    Train    ") // "LastTrain"
+ */
+export const createRedisIdentifier = (input: string): string => {
+  const rmWhitespaceRegex = /\s\s+/g;
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(rmWhitespaceRegex, " ")
+    .split(" ")
+    .join(":");
 };
 
 /**

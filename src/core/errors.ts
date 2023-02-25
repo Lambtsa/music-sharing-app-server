@@ -31,6 +31,28 @@ export class DbConnectionError extends Error {
   }
 }
 
+export class RedisConnectionError extends Error {
+  statusCode = 503;
+
+  constructor(message?: string) {
+    super(message);
+
+    // 👇️ because we are extending a built-in class
+    Object.setPrototypeOf(this, RedisConnectionError.prototype);
+  }
+}
+
+export class ContextError extends Error {
+  statusCode = 503;
+
+  constructor(message?: string) {
+    super(message);
+
+    // 👇️ because we are extending a built-in class
+    Object.setPrototypeOf(this, ContextError.prototype);
+  }
+}
+
 export class DbInsertError extends Error {
   statusCode = 500;
 

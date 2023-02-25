@@ -1,7 +1,13 @@
 import { createConnection } from "@core/db";
 import { NextFunction, Request, Response } from "express";
 import { DeezerApi, SpotifyApi, YoutubeApi } from "@external";
-import { DbConnectionError } from "@core/errors";
+import {
+  ContextError,
+  DbConnectionError,
+  RedisConnectionError,
+} from "@core/errors";
+import logger from "pino";
+import { RedisContext } from "@core/redis";
 
 /**
  * Adds context to each request allowing access to external classes and db connection
@@ -16,17 +22,34 @@ export const AddContext =
       /* ######################################## */
       await db.raw("SELECT 1+1 as result");
 
+      const log = logger();
+
+      const client = new RedisContext(log);
+      await client.connect();
+
       const context: Express.RequestContext = {
         db,
         external: {
-          spotify: new SpotifyApi(),
+          spotify: new SpotifyApi(client),
           deezer: new DeezerApi(),
           youtube: new YoutubeApi(),
         },
+        redis: client,
+        log,
       };
       req.context = context;
       return next();
     } catch (err) {
-      next(new DbConnectionError("Db connection error"));
+      switch (true) {
+        case err instanceof DbConnectionError: {
+          return next(new DbConnectionError("Db connection error"));
+        }
+        case err instanceof RedisConnectionError: {
+          return next(new RedisConnectionError("Redis connection error"));
+        }
+        default: {
+          return next(new ContextError("Context error"));
+        }
+      }
     }
   };

@@ -80,7 +80,7 @@ export class DeezerApi {
     return {
       artist: data.artist.name,
       track: data.title,
-      album: data.album.title,
+      albumName: data.album.title,
     };
   }
 }

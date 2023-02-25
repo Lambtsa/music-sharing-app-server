@@ -254,7 +254,7 @@ export class SpotifyApi {
       return {
         artist: data.artists[0]?.name || "No artist",
         track: data.name,
-        album: data.album.name,
+        albumName: data.album.name,
       };
     } catch (err) {
       throw new BadGatewayError(err);

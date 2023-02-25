@@ -104,7 +104,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
       const album = await Album.db.insert({
         db,
-        input: { artist_id: artist.id, name: details.album },
+        input: { artist_id: artist.id, name: details.albumName },
         trx,
       });
 

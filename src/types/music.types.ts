@@ -7,7 +7,7 @@ export type UrlTypes = MusicProviders | "spotifyApi";
 export interface GetMusicLinksInput {
   artist: string;
   track: string;
-  album: string;
+  albumName: string;
 }
 
 export interface LinksResponseData {
